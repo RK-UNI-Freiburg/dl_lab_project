@@ -20,6 +20,7 @@ Please following the below instructions to clone this repository and install the
   - Select `Project: dl_lab_project`
   - Click on `Python Interpreter > Add Interpreter > Add Local Interpreter > Conda Environment`
   - Select `dllabproject` under `Use existing environment` 
+  - Apply the settings
 - Open a terminal in PyCharm - the conda virtual environment should be activated
 - Run `pip install -r requirements.txt`
 - Optional (for the contributors) - If you install any new python libraries, then please update the `requirements.txt` file by running the command `pip freeze > requirements.txt`
