@@ -17,7 +17,7 @@ def fetch_and_store(dataset_name: str, subject_ids: str, data_folder_name: str) 
     :param subject_ids: The subjects whose data is fetched. This should be comma separated like 1,3,6 for subject ids
     1, 3 & 6.
     :param data_folder_name: The name of the folder where the preprocessed data is stored.
-    :return: The dataset fetched from MOABBDataset
+    :return: The dataset fetched from MOABBDataset.
     """
     # Create the folder where the data needs to be stored -------------------------------------------------------------
     create_directory(data_folder_name)
@@ -33,13 +33,16 @@ def fetch_and_store(dataset_name: str, subject_ids: str, data_folder_name: str) 
     return fetched_dataset
 
 
-def preprocess_dataset(data: MOABBDataset) -> None:
+def preprocess_dataset(data: MOABBDataset, ems_factor: float, init_block_size: int) -> MOABBDataset:
     """
-
+    This method does the required preprocessing on the dataset.
     :param data: This the dataset which has been fetched from MOABBDataset.
+    :param ems_factor: This is a factor used for doing exponential moving standardization.
+    :param init_block_size: This is the number of samples used to calculate the mean and standard deviation to apply
+    the exponential moving standardization.
     :return: The preprocessed dataset.
     """
-    x = 5
+    return dataset_preprocessor(data=data, ems_factor=ems_factor, init_block_size=init_block_size)
 
 
 def get_summary_stats() -> None:
@@ -60,6 +63,14 @@ if __name__ == '__main__':
                                 default='data',
                                 help='Folder name to store the data',
                                 type=str)
+    cmdline_parser.add_argument('-emsf', '--ems_factor',
+                                default=1e-3,
+                                help='Factor to apply exponential moving standardization',
+                                type=float)
+    cmdline_parser.add_argument('-ibs', '--init_block_size',
+                                default=1000,
+                                help='Initial block size to implement exponential moving standardization',
+                                type=int)
     cmdline_parser.add_argument('-v', '--verbose',
                                 default='INFO',
                                 choices=['INFO', 'DEBUG'],
@@ -73,7 +84,11 @@ if __name__ == '__main__':
         dataset = fetch_and_store(dataset_name=args.dataset_name,
                                   subject_ids=args.subject_ids,
                                   data_folder_name=args.data_folder_name)
+    else:
+        dataset = load_dataset(folder_name=args.data_folder_name)
 
-    # preprocessed_dataset = preprocess_dataset(dataset)
+    preprocessed_dataset = preprocess_dataset(data=dataset,
+                                              ems_factor=args.ems_factor,
+                                              init_block_size=args.init_block_size)
 
     # get_summary_stats()

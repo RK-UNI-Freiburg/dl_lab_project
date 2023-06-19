@@ -1,6 +1,4 @@
 import os
-import argparse
-import logging
 import time
 import numpy as np
 import pandas as pd
@@ -9,6 +7,7 @@ import seaborn as sns
 from typing import List
 
 from braindecode.datasets import MOABBDataset
+from braindecode.datautil import load_concat_dataset
 from braindecode.preprocessing import exponential_moving_standardize, preprocess, Preprocessor
 
 
@@ -42,3 +41,41 @@ def store_dataset(folder_name: str, dataset: MOABBDataset) -> None:
     """
     dataset.save(path='./' + folder_name)
 
+
+def load_dataset(folder_name: str) -> MOABBDataset:
+    """
+    This method is used to load the fetched dataset from a specific folder.
+    :param folder_name: The name of the folder where the dataset is stored.
+    :return: Loads and returns the stored dataset.
+    """
+    return load_concat_dataset(path='./' + folder_name, preload=True)
+
+
+def dataset_preprocessor(data: MOABBDataset, ems_factor: float = 1e-3, init_block_size: int = 1000) -> MOABBDataset:
+    """
+    This method applies all the required preprocessing to the MOABBDataset.
+    :param data: The dataset which requires preprocessing.
+    :param ems_factor: This is a factor used for doing exponential moving standardization.
+    :param init_block_size: This is the number of samples used to calculate the mean and standard deviation to apply
+    the exponential moving standardization.
+    :return: The
+    """
+
+    def convert_from_volts_to_micro_volts(dataset: MOABBDataset = data) -> None:
+        """
+        This method converts an EEG Dataset from Volts to MicroVolts.
+        :param dataset: The dataset which needs conversion from Volts to MicroVolts.
+        :return: The converted dataset from Volts to MicroVolts.
+        """
+        return np.multiply(dataset, 1e6)
+
+    # The following preprocessing is applied to the dataset,
+    # 1. Keeps only the EEG Channel and drops MEG and STIM Channels.
+    # 2. Converts the signals from Volts to MicroVolts. Hence, multiplies the received signal with a factor of 1e6.
+    # 3. Apply exponential_moving_standardize with a factor of 1e-3 and init_block_size of 1000.
+    preprocessors = [
+        Preprocessor('pick_types', eeg=True, meg=False, stim=False),
+        Preprocessor(convert_from_volts_to_micro_volts),
+        Preprocessor(exponential_moving_standardize, factor_new=ems_factor, init_block_size=init_block_size)
+    ]
+    return preprocess(data, preprocessors)

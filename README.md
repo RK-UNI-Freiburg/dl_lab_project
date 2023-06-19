@@ -29,4 +29,4 @@ Please following the below instructions to clone this repository and install the
 
 We use the MOABBDataset - BNCI2014001 here. You can read about this more at this [link](http://moabb.neurotechx.com/docs/generated/moabb.datasets.BNCI2014001.html) here. Further, you can run the following command from command prompt when located in the root folder of the project to generate the summary statistics of this dataset.
 
-`python -m src.data_summary_stats -d "BNCI2014001" -s "1,2,3,4,5,6,7,8,9" -dfn "data"`
+`python -m src.data_summary_stats -d "BNCI2014001" -s "1,2,3,4,5,6,7,8,9" -dfn "data" -emsf 1e-3 -ibs 1000`
