@@ -37,7 +37,8 @@ def preprocess_dataset(data: MOABBDataset,
                        l_freq: float,
                        h_freq: float,
                        ems_factor: float,
-                       init_block_size: int) -> MOABBDataset:
+                       init_block_size: int,
+                       trial_start_offset_seconds: float) -> WindowsDataset:
     """
     This method does the required preprocessing on the dataset.
     :param data: This the dataset which has been fetched from MOABBDataset.
@@ -46,13 +47,15 @@ def preprocess_dataset(data: MOABBDataset,
     :param ems_factor: This is a factor used for doing exponential moving standardization.
     :param init_block_size: This is the number of samples used to calculate the mean and standard deviation to apply
     the exponential moving standardization.
-    :return: The preprocessed dataset.
+    :param trial_start_offset_seconds: This represents the duration (in seconds) before the event of interest starts.
+    :return: The preprocessed and window cut dataset.
     """
     return dataset_preprocessor(data=data,
-                                l_freq= l_freq,
+                                l_freq=l_freq,
                                 h_freq=h_freq,
                                 ems_factor=ems_factor,
-                                init_block_size=init_block_size)
+                                init_block_size=init_block_size,
+                                trial_start_offset_seconds=trial_start_offset_seconds)
 
 
 def get_summary_stats() -> None:
@@ -89,6 +92,10 @@ if __name__ == '__main__':
                                 default=1000,
                                 help='Initial block size to implement exponential moving standardization',
                                 type=int)
+    cmdline_parser.add_argument('-tsos', '--trial_start_offset_seconds',
+                                default=-0.5,
+                                help='This represents the duration (in seconds) before the event of interest starts',
+                                type=float)
     cmdline_parser.add_argument('-v', '--verbose',
                                 default='INFO',
                                 choices=['INFO', 'DEBUG'],
@@ -109,6 +116,7 @@ if __name__ == '__main__':
                                               l_freq=args.l_freq,
                                               h_freq=args.h_freq,
                                               ems_factor=args.ems_factor,
-                                              init_block_size=args.init_block_size)
+                                              init_block_size=args.init_block_size,
+                                              trial_start_offset_seconds=args.trial_start_offset_seconds)
 
     # get_summary_stats()

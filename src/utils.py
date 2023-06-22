@@ -6,9 +6,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from typing import List
 
-from braindecode.datasets import MOABBDataset
+from braindecode.datasets import MOABBDataset, WindowsDataset
 from braindecode.datautil import load_concat_dataset
-from braindecode.preprocessing import exponential_moving_standardize, preprocess, Preprocessor
+from braindecode.preprocessing import exponential_moving_standardize, create_windows_from_events, \
+    preprocess, Preprocessor
 
 
 def create_directory(folder_name: str) -> None:
@@ -51,22 +52,21 @@ def load_dataset(folder_name: str) -> MOABBDataset:
     return load_concat_dataset(path='./' + folder_name, preload=True)
 
 
-def dataset_preprocessor(data: MOABBDataset,
-                         l_freq: float = 4.0,
-                         h_freq: float = 38.0,
-                         ems_factor: float = 1e-3,
-                         init_block_size: int = 1000) -> MOABBDataset:
+def conversions_and_filtering(data: MOABBDataset,
+                              l_freq: float = 4.0,
+                              h_freq: float = 38.0,
+                              ems_factor: float = 1e-3,
+                              init_block_size: int = 1000) -> MOABBDataset:
     """
-    This method applies all the required preprocessing to the MOABBDataset.
-    :param data: The dataset which requires preprocessing.
+    This method is responsible for applying all the required conversions and filtering as part of the preprocessing.
+    :param data: The dataset which requires the conversions and filtering.
     :param l_freq: The lower limit of the Bandpass Filter.
     :param h_freq: The higher limit of the Bandpass Filter.
     :param ems_factor: This is a factor used for doing exponential moving standardization.
     :param init_block_size: This is the number of samples used to calculate the mean and standard deviation to apply
     the exponential moving standardization.
-    :return: The preprocessed dataset.
+    :return: The dataset on which all the conversions and filtering has been applied.
     """
-
     def convert_from_volts_to_micro_volts(dataset: MOABBDataset = data) -> None:
         """
         This method converts an EEG Dataset from Volts to MicroVolts.
@@ -86,4 +86,52 @@ def dataset_preprocessor(data: MOABBDataset,
         Preprocessor('filter', l_freq=l_freq, h_freq=h_freq),
         Preprocessor(exponential_moving_standardize, factor_new=ems_factor, init_block_size=init_block_size)
     ]
-    return preprocess(data, preprocessors)
+    preprocess(data, preprocessors)
+    return data
+
+
+def cut_dataset_windows(data: MOABBDataset,
+                        trial_start_offset_seconds: float = -0.5) -> WindowsDataset:
+    """
+    This method cuts windows of the dataset to generate individual instances for training purposes.
+    :param data: The dataset on which the windows are cut out.
+    :param trial_start_offset_seconds: This represents the duration (in seconds) before the event of interest starts.
+    :return: The dataset which is cut into parts.
+    """
+    # s_freq contains the sampling frequency
+    s_freq = data.datasets[0].raw.info['sfreq']  # The sampling frequency is 250 Hz
+    trial_start_offset_samples = int(trial_start_offset_seconds * s_freq)
+    data = create_windows_from_events(data,
+                                      trial_start_offset_samples=trial_start_offset_samples,
+                                      trial_stop_offset_samples=0,
+                                      window_size_samples=None,
+                                      window_stride_samples=None,
+                                      drop_last_window=False,
+                                      preload=True)
+    return data
+
+
+def dataset_preprocessor(data: MOABBDataset,
+                         l_freq: float,
+                         h_freq: float,
+                         ems_factor: float,
+                         init_block_size: int,
+                         trial_start_offset_seconds: float) -> WindowsDataset:
+    """
+    This method applies all the required preprocessing to the MOABBDataset.
+    :param data: The dataset which requires preprocessing.
+    :param l_freq: The lower limit of the Bandpass Filter.
+    :param h_freq: The higher limit of the Bandpass Filter.
+    :param ems_factor: This is a factor used for doing exponential moving standardization.
+    :param init_block_size: This is the number of samples used to calculate the mean and standard deviation to apply
+    the exponential moving standardization.
+    :param trial_start_offset_seconds: This represents the duration (in seconds) before the event of interest starts.
+    :return: The preprocessed dataset.
+    """
+    # Apply all the required conversions and filtering required before preparing the training and validation datasets
+    data = conversions_and_filtering(data, l_freq, h_freq, ems_factor, init_block_size)
+
+    # Cutting windows of the dataset
+    data = cut_dataset_windows(data, trial_start_offset_seconds)
+
+    return data
