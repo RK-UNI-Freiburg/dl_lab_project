@@ -33,16 +33,26 @@ def fetch_and_store(dataset_name: str, subject_ids: str, data_folder_name: str) 
     return fetched_dataset
 
 
-def preprocess_dataset(data: MOABBDataset, ems_factor: float, init_block_size: int) -> MOABBDataset:
+def preprocess_dataset(data: MOABBDataset,
+                       l_freq: float,
+                       h_freq: float,
+                       ems_factor: float,
+                       init_block_size: int) -> MOABBDataset:
     """
     This method does the required preprocessing on the dataset.
     :param data: This the dataset which has been fetched from MOABBDataset.
+    :param l_freq: The lower limit of the Bandpass Filter.
+    :param h_freq: The higher limit of the Bandpass Filter.
     :param ems_factor: This is a factor used for doing exponential moving standardization.
     :param init_block_size: This is the number of samples used to calculate the mean and standard deviation to apply
     the exponential moving standardization.
     :return: The preprocessed dataset.
     """
-    return dataset_preprocessor(data=data, ems_factor=ems_factor, init_block_size=init_block_size)
+    return dataset_preprocessor(data=data,
+                                l_freq= l_freq,
+                                h_freq=h_freq,
+                                ems_factor=ems_factor,
+                                init_block_size=init_block_size)
 
 
 def get_summary_stats() -> None:
@@ -63,6 +73,14 @@ if __name__ == '__main__':
                                 default='data',
                                 help='Folder name to store the data',
                                 type=str)
+    cmdline_parser.add_argument('-lf', '--l_freq',
+                                default=4.0,
+                                help='The lower limit of the Bandpass Filter',
+                                type=float)
+    cmdline_parser.add_argument('-hf', '--h_freq',
+                                default=38.0,
+                                help='The higher limit of the Bandpass Filter',
+                                type=float)
     cmdline_parser.add_argument('-emsf', '--ems_factor',
                                 default=1e-3,
                                 help='Factor to apply exponential moving standardization',
@@ -88,6 +106,8 @@ if __name__ == '__main__':
         dataset = load_dataset(folder_name=args.data_folder_name)
 
     preprocessed_dataset = preprocess_dataset(data=dataset,
+                                              l_freq=args.l_freq,
+                                              h_freq=args.h_freq,
                                               ems_factor=args.ems_factor,
                                               init_block_size=args.init_block_size)
 

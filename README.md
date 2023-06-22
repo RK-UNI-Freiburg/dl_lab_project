@@ -1,8 +1,13 @@
 # dl_lab_project
 
-The goal of the project **Transformers for EEG Data** is to assess and analyze the performance of Transformers when applied to EEG data. Furthermore, the goal of this project is also to apply ProbTransformers on the same data to handle sequential data better. As an extension of the project, it is also expected to apply modern-day Hyperparameter Optimization techniques like Hyperband and BOHB such that we get the best model with the best hyperparameters yielding the best possible performance on this dataset.
+The goal of the project **Transformers for EEG Data** is to assess and analyze the performance of Transformers when 
+applied to EEG data. Furthermore, the goal of this project is also to apply ProbTransformers on the same data to 
+handle sequential data better. As an extension of the project, it is also expected to apply modern-day Hyperparameter 
+Optimization techniques like Hyperband and BOHB such that we get the best model with the best hyperparameters yielding 
+the best possible performance on this dataset.
 
-For more information you can refer to this [Google Doc](https://docs.google.com/document/d/1N7uG7VsaE7LVqsaoxjrBQCio4SGWjhkmxrTy3-VaLP8/edit?usp=sharing) here.
+For more information you can refer to this 
+[Google Doc](https://docs.google.com/document/d/1N7uG7VsaE7LVqsaoxjrBQCio4SGWjhkmxrTy3-VaLP8/edit?usp=sharing) here.
 
 ### Cloning the Repository and Installing Dependencies
 Please following the below instructions to clone this repository and install the requirements.
@@ -23,10 +28,16 @@ Please following the below instructions to clone this repository and install the
   - Apply the settings
 - Open a terminal in PyCharm - the conda virtual environment should be activated now
 - Run `pip install -r requirements.txt`
-- Optional (for the contributors) - If you install any new python libraries, then please update the `requirements.txt` file by running the command `pip freeze > requirements.txt`
+- Optional (for the contributors) - If you install any new python libraries, then please update the 
+`requirements.txt` file by running the command `pip freeze > requirements.txt`. Further, push this new requirements 
+file to the Git repository.
 
 ### About the Dataset and Generating Summary Statistics
 
-We use the MOABBDataset - BNCI2014001 here. You can read about this more at this [link](http://moabb.neurotechx.com/docs/generated/moabb.datasets.BNCI2014001.html) here. Further, you can run the following command from command prompt when located in the root folder of the project to generate the summary statistics of this dataset.
+We use the MOABBDataset - BNCI2014001 here. You can read about this more at this 
+[link](http://moabb.neurotechx.com/docs/generated/moabb.datasets.BNCI2014001.html) here. Further, you can run the 
+following command from command prompt when located in the root folder of the project to generate the summary 
+statistics of this dataset.
 
-`python -m src.data_summary_stats -d "BNCI2014001" -s "1,2,3,4,5,6,7,8,9" -dfn "data" -emsf 1e-3 -ibs 1000`
+`python -m src.data_summary_stats -d "BNCI2014001" -s "1,2,3,4,5,6,7,8,9" -dfn "data" -lf 4.0 -hf 38.0 
+-emsf 1e-3 -ibs 1000`

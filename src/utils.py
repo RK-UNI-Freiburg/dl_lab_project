@@ -51,14 +51,20 @@ def load_dataset(folder_name: str) -> MOABBDataset:
     return load_concat_dataset(path='./' + folder_name, preload=True)
 
 
-def dataset_preprocessor(data: MOABBDataset, ems_factor: float = 1e-3, init_block_size: int = 1000) -> MOABBDataset:
+def dataset_preprocessor(data: MOABBDataset,
+                         l_freq: float = 4.0,
+                         h_freq: float = 38.0,
+                         ems_factor: float = 1e-3,
+                         init_block_size: int = 1000) -> MOABBDataset:
     """
     This method applies all the required preprocessing to the MOABBDataset.
     :param data: The dataset which requires preprocessing.
+    :param l_freq: The lower limit of the Bandpass Filter.
+    :param h_freq: The higher limit of the Bandpass Filter.
     :param ems_factor: This is a factor used for doing exponential moving standardization.
     :param init_block_size: This is the number of samples used to calculate the mean and standard deviation to apply
     the exponential moving standardization.
-    :return: The
+    :return: The preprocessed dataset.
     """
 
     def convert_from_volts_to_micro_volts(dataset: MOABBDataset = data) -> None:
@@ -72,10 +78,12 @@ def dataset_preprocessor(data: MOABBDataset, ems_factor: float = 1e-3, init_bloc
     # The following preprocessing is applied to the dataset,
     # 1. Keeps only the EEG Channel and drops MEG and STIM Channels.
     # 2. Converts the signals from Volts to MicroVolts. Hence, multiplies the received signal with a factor of 1e6.
-    # 3. Apply exponential_moving_standardize with a factor of 1e-3 and init_block_size of 1000.
+    # 3. Use a Bandpass Filter to pass the signal between a certain range
+    # 4. Apply exponential_moving_standardize with a factor of 1e-3 and init_block_size of 1000.
     preprocessors = [
         Preprocessor('pick_types', eeg=True, meg=False, stim=False),
         Preprocessor(convert_from_volts_to_micro_volts),
+        Preprocessor('filter', l_freq=l_freq, h_freq=h_freq),
         Preprocessor(exponential_moving_standardize, factor_new=ems_factor, init_block_size=init_block_size)
     ]
     return preprocess(data, preprocessors)
