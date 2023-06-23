@@ -39,5 +39,4 @@ We use the MOABBDataset - BNCI2014001 here. You can read about this more at this
 following command from command prompt when located in the root folder of the project to generate the summary 
 statistics of this dataset.
 
-`python -m src.data_summary_stats -d "BNCI2014001" -s "1,2,3,4,5,6,7,8,9" -dfn "data" -lf 4.0 -hf 38.0 
--emsf 1e-3 -ibs 1000`
+`python -m src.data_summary_stats -d "BNCI2014001" -s "1,2,3,4,5,6,7,8,9" -dfn "data" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -hmf True -sspp "plots/summary_statistics"`

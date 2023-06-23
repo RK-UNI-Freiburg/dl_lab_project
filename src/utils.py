@@ -4,12 +4,15 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from typing import List
+from typing import List, Tuple, Any
 
 from braindecode.datasets import MOABBDataset, WindowsDataset
 from braindecode.datautil import load_concat_dataset
 from braindecode.preprocessing import exponential_moving_standardize, create_windows_from_events, \
     preprocess, Preprocessor
+
+import torch
+from torch.utils.data import Subset
 
 
 def create_directory(folder_name: str) -> None:
@@ -20,7 +23,7 @@ def create_directory(folder_name: str) -> None:
     """
     folder_path = './' + folder_name
     if not os.path.exists(folder_path):
-        os.mkdir(folder_path)
+        os.makedirs(folder_path)
 
 
 def fetch_dataset(dataset_name: str, subject_ids: List) -> MOABBDataset:
@@ -135,3 +138,22 @@ def dataset_preprocessor(data: MOABBDataset,
     data = cut_dataset_windows(data, trial_start_offset_seconds)
 
     return data
+
+
+def split_dataset(data: WindowsDataset, training_set_size: float = 0.8) -> Tuple[Any, Any, Any, Any]:
+    """
+    This method splits the dataset into full training data (train + validation), training data, validation data and
+    the evaluation data.
+    :param data: This is the dataset which is to be split into full data, training data, validation data and
+    evaluation data.
+    :param training_set_size: Indicates the training set size in percentage, like 0.7 or 0.8.
+    :return: The full training data (train + validation), training data, validation data and the evaluation data.
+    """
+    split_data = data.split('session')  # Windowed dataset
+    full_train_set = split_data['session_T']  # Training + Validation dataset
+    split_index = int(len(full_train_set) * training_set_size)  # Index at which Training and Validation data is split
+    train_set = Subset(full_train_set, range(0, split_index))  # Training dataset
+    valid_set = Subset(full_train_set, range(split_index, 2592))  # Validation dataset
+    eval_set = split_data['session_E']  # Evaluation dataset
+
+    return full_train_set, train_set, valid_set, eval_set
