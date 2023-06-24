@@ -8,8 +8,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from typing import Dict
+from sklearn.cluster import KMeans
 
 from .utils import *
+
+import warnings
+warnings.filterwarnings('ignore')
 
 
 def str_to_bool(value: str) -> bool:
@@ -74,11 +78,15 @@ def preprocess_dataset(data: MOABBDataset,
 
 def get_summary_stats(data_sets: Dict,
                       heatmap_flag: bool = True,
+                      kmeans_flag: bool = True,
+                      n_clusters: int = 4,
                       summary_stats_plots_path: str = 'plots/summary_statistics') -> None:
     """
     This method generates the summary statistics for the dataset at our hand.
     :param data_sets: This is the list of full training data, training data, validation data and the evaluation data.
     :param heatmap_flag: This flag decides if the channel wise correlation heatmaps are to be generated.
+    :param kmeans_flag: This flag decides if the channel wise clustering is to be done.
+    :param n_clusters: Number of clusters to implement the channel wise clustering analysis.
     :param summary_stats_plots_path: Location where the summary statistics plots are stored.
     :return: None
     """
@@ -97,11 +105,35 @@ def get_summary_stats(data_sets: Dict,
 
         data = np.array([instance[0] for instance in data_set])
         concatenated_data = np.concatenate(data, axis=1)
+        correlation_matrix = np.corrcoef(concatenated_data)
+
+        # Plotting the channel wise correlation heatmaps
         if heatmap_flag:
             plt.figure(figsize=(20, 15))
-            sns.heatmap(np.corrcoef(concatenated_data))
+            sns.heatmap(correlation_matrix)
             plt.title(f"Channel Wise Correlation Map for {name}", fontdict={'fontsize': 30})
             plt.savefig(f"./{summary_stats_plots_path}/{name}_heatmap.png")
+            plt.show()
+
+        # Trying out KMeans Clustering to see which channels cluster together
+        if kmeans_flag:
+            kmeans = KMeans(n_clusters=n_clusters, random_state=0)
+            kmeans.fit(correlation_matrix)
+            cluster_labels = kmeans.labels_
+            clusters = {}
+            for cluster in range(n_clusters):
+                clusters[cluster + 1] = []
+            for channel, label in enumerate(cluster_labels):
+                clusters[label + 1].append(channel + 1)
+            print(f'Clustered Channels\n{clusters}')
+            plt.figure(figsize=(15, 10))
+            x = np.linspace(1, 23, 22)
+            y = cluster_labels + 1
+            plt.scatter(x=x, y=y)
+            plt.xlabel('Channel Number')
+            plt.ylabel('Cluster Number')
+            plt.title(f"Channel Wise Cluster Relation for {name}", fontdict={'fontsize': 30})
+            plt.savefig(f"./{summary_stats_plots_path}/{name}_cluster_analysis.png")
             plt.show()
 
 
@@ -147,6 +179,14 @@ if __name__ == '__main__':
                                 default=True,
                                 help='If set to True, it will generate the channel wise correlation plots',
                                 type=str_to_bool)
+    cmdline_parser.add_argument('-kmf', '--kmeans_flag',
+                                default=True,
+                                help='If set to True, it will generate the channel wise clusters',
+                                type=str_to_bool)
+    cmdline_parser.add_argument('-nc', '--n_clusters',
+                                default=4,
+                                help='Number of clusters to execute the channel wise clustering',
+                                type=int)
     cmdline_parser.add_argument('-sspp', '--summary_stats_plots_path',
                                 default='plots/summary_statistics',
                                 help='Location where the summary statistics plots are stored',
@@ -189,4 +229,6 @@ if __name__ == '__main__':
     }
     get_summary_stats(datasets,
                       heatmap_flag=args.heatmap_flag,
+                      kmeans_flag=args.kmeans_flag,
+                      n_clusters=args.n_clusters,
                       summary_stats_plots_path=args.summary_stats_plots_path)
