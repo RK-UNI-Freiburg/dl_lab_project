@@ -120,7 +120,7 @@ def get_summary_stats(data_sets: Dict,
         for channel, label in enumerate(cluster_labels):
             clusters[label + 1].append(channel + 1)
         print(f'Clustered Channels - \n{clusters}')
-        x = np.linspace(1, 23, 22)
+        x = np.linspace(1, 22, 22)
         y = cluster_labels + 1
         plt.figure(figsize=(15, 10))
         plt.scatter(x=x, y=y)
