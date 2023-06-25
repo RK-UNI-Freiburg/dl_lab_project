@@ -1,5 +1,4 @@
 import os
-import time
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -53,6 +52,29 @@ def load_dataset(folder_name: str) -> MOABBDataset:
     :return: Loads and returns the stored dataset.
     """
     return load_concat_dataset(path='./' + folder_name, preload=True)
+
+
+def fetch_and_store(dataset_name: str, subject_ids: str, data_folder_name: str) -> MOABBDataset:
+    """
+    This method fetches the required dataset and stores it.
+    :param dataset_name: The name of the dataset which is to be fetched from braindecode MOABBDataset.
+    :param subject_ids: The subjects whose data is fetched. This should be comma separated like 1,3,6 for subject ids
+    1, 3 & 6.
+    :param data_folder_name: The name of the folder where the preprocessed data is stored.
+    :return: The dataset fetched from MOABBDataset.
+    """
+    # Create the folder where the data needs to be stored -------------------------------------------------------------
+    create_directory(data_folder_name)
+
+    # Fetch the dataset -----------------------------------------------------------------------------------------------
+    subject_ids = str.split(subject_ids, ',')
+    subject_ids = [int(num) for num in subject_ids]
+    fetched_dataset = fetch_dataset(dataset_name, subject_ids)
+
+    # Store the fetched dataset ---------------------------------------------------------------------------------------
+    store_dataset(data_folder_name, fetched_dataset)
+
+    return fetched_dataset
 
 
 def conversions_and_filtering(data: MOABBDataset,
@@ -138,6 +160,31 @@ def dataset_preprocessor(data: MOABBDataset,
     data = cut_dataset_windows(data, trial_start_offset_seconds)
 
     return data
+
+
+def preprocess_dataset(data: MOABBDataset,
+                       l_freq: float,
+                       h_freq: float,
+                       ems_factor: float,
+                       init_block_size: int,
+                       trial_start_offset_seconds: float) -> WindowsDataset:
+    """
+    This method does the required preprocessing on the dataset.
+    :param data: This the dataset which has been fetched from MOABBDataset.
+    :param l_freq: The lower limit of the Bandpass Filter.
+    :param h_freq: The higher limit of the Bandpass Filter.
+    :param ems_factor: This is a factor used for doing exponential moving standardization.
+    :param init_block_size: This is the number of samples used to calculate the mean and standard deviation to apply
+    the exponential moving standardization.
+    :param trial_start_offset_seconds: This represents the duration (in seconds) before the event of interest starts.
+    :return: The preprocessed and window cut dataset.
+    """
+    return dataset_preprocessor(data=data,
+                                l_freq=l_freq,
+                                h_freq=h_freq,
+                                ems_factor=ems_factor,
+                                init_block_size=init_block_size,
+                                trial_start_offset_seconds=trial_start_offset_seconds)
 
 
 def split_dataset(data: WindowsDataset, training_set_size: float = 0.8) -> Tuple[Any, Any, Any, Any]:
