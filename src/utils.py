@@ -92,6 +92,7 @@ def conversions_and_filtering(data: MOABBDataset,
     the exponential moving standardization.
     :return: The dataset on which all the conversions and filtering has been applied.
     """
+
     def convert_from_volts_to_micro_volts(dataset: MOABBDataset = data) -> None:
         """
         This method converts an EEG Dataset from Volts to MicroVolts.
@@ -202,5 +203,47 @@ def split_dataset(data: WindowsDataset, training_set_size: float = 0.8) -> Tuple
     train_set = Subset(full_train_set, range(0, split_index))  # Training dataset
     valid_set = Subset(full_train_set, range(split_index, 2592))  # Validation dataset
     eval_set = split_data['session_E']  # Evaluation dataset
+
+    return full_train_set, train_set, valid_set, eval_set
+
+
+def get_data_and_preprocess(dataset_dir: str, dataset_name: str, subject_ids: str, l_freq: float, h_freq: float,
+                            ems_factor: float, init_block_size: int, trial_start_offset_seconds: float,
+                            training_set_size: float) -> Tuple[Any, Any, Any, Any]:
+    """
+    This method fetches the dataset from MOABBDataset and preprocesses it.
+    :param dataset_dir:The directory where the dataset is stored.
+    :param dataset_name: The name of the dataset.
+    :param subject_ids: The subject IDs of the dataset.
+    :param l_freq: The lower limit of the Bandpass Filter.
+    :param h_freq: The higher limit of the Bandpass Filter.
+    :param ems_factor: This is a factor used for doing exponential moving standardization.
+    :param init_block_size: This is the number of samples used to calculate the mean and standard deviation to apply
+    the exponential moving standardization.
+    :param trial_start_offset_seconds: This represents the duration (in seconds) before the event of interest starts.
+    :param training_set_size: Indicates the training set size in percentage, like 0.7 or 0.8.
+    :return: The full training data (train + validation), training data, validation data and the evaluation data.
+    """
+
+    create_directory(dataset_dir)
+    # Below, we fetch the dataset from MOABBDataset or load it if it already exists
+    if not any(os.scandir('./' + dataset_dir)):
+        dataset = fetch_and_store(dataset_name=dataset_name,
+                                  subject_ids=subject_ids,
+                                  data_folder_name=dataset_dir)
+    else:
+        dataset = load_dataset(folder_name=dataset_dir)
+
+    # Below, we preprocess the dataset we want to use for training purposes
+    preprocessed_dataset = preprocess_dataset(data=dataset,
+                                              l_freq=l_freq,
+                                              h_freq=h_freq,
+                                              ems_factor=ems_factor,
+                                              init_block_size=init_block_size,
+                                              trial_start_offset_seconds=trial_start_offset_seconds)
+
+    # Below, we get the split datasets required for training purposes
+    full_train_set, train_set, valid_set, eval_set = split_dataset(preprocessed_dataset,
+                                                                   training_set_size=training_set_size)
 
     return full_train_set, train_set, valid_set, eval_set

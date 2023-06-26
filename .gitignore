@@ -162,3 +162,8 @@ cython_debug/
 data/
 models/
 preds/
+plots/
+src/data/
+src/models/
+src/preds/
+src/plots/
