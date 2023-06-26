@@ -138,33 +138,19 @@ if __name__ == '__main__':
     log_lvl = logging.INFO if args.verbose == 'INFO' else logging.DEBUG
     logging.basicConfig(level=log_lvl)
 
-    # If the data does not exist, the fetch and store the data, else load the existing data
-    '''create_directory(args.data_folder_name)
-    if not any(os.scandir('./' + args.data_folder_name)):
-        dataset = fetch_and_store(dataset_name=args.dataset_name,
-                                  subject_ids=args.subject_ids,
-                                  data_folder_name=args.data_folder_name)
-    else:
-        dataset = load_dataset(folder_name=args.data_folder_name)
-
-    # Below, we preprocess the dataset we want to use for training purposes
-    preprocessed_dataset = preprocess_dataset(data=dataset,
-                                              l_freq=args.l_freq,
-                                              h_freq=args.h_freq,
-                                              ems_factor=args.ems_factor,
-                                              init_block_size=args.init_block_size,
-                                              trial_start_offset_seconds=args.trial_start_offset_seconds)'''
-
     # Below, we get the split datasets required for training purposes after fetching and preprocessing it
-    full_train_set, train_set, valid_set, eval_set = get_data_and_preprocess(dataset_dir=args.data_folder_name,
-                                                                             dataset_name=args.dataset_name,
-                                                                             subject_ids=args.subject_ids,
-                                                                             l_freq=args.l_freq,
-                                                                             h_freq=args.h_freq,
-                                                                             ems_factor=args.ems_factor,
-                                                                             init_block_size=args.init_block_size,
-                                                                             trial_start_offset_seconds=args.trial_start_offset_seconds,
-                                                                             training_set_size=args.training_set_size)
+    full_train_set,\
+        train_set,\
+        valid_set,\
+        eval_set = get_data_and_preprocess(dataset_dir=args.data_folder_name,
+                                           dataset_name=args.dataset_name,
+                                           subject_ids=args.subject_ids,
+                                           l_freq=args.l_freq,
+                                           h_freq=args.h_freq,
+                                           ems_factor=args.ems_factor,
+                                           init_block_size=args.init_block_size,
+                                           trial_start_offset_seconds=args.trial_start_offset_seconds,
+                                           training_set_size=args.training_set_size)
 
     # Now we generate the summary statistics for the split datasets
     datasets = {

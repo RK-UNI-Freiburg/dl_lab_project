@@ -90,15 +90,18 @@ def main(exp_name: str,
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # Load the dataset and preprocess it and get the train, validation and test sets
-    full_train_set, train_set, valid_set, eval_set = get_data_and_preprocess(dataset_dir=dataset_dir,
-                                                                             dataset_name=dataset_name,
-                                                                             subject_ids=subject_ids,
-                                                                             l_freq=l_freq,
-                                                                             h_freq=h_freq,
-                                                                             ems_factor=ems_factor,
-                                                                             init_block_size=init_block_size,
-                                                                             trial_start_offset_seconds=trial_start_offset_seconds,
-                                                                             training_set_size=training_set_size)
+    full_train_set,\
+        train_set,\
+        valid_set,\
+        eval_set = get_data_and_preprocess(dataset_dir=dataset_dir,
+                                           dataset_name=dataset_name,
+                                           subject_ids=subject_ids,
+                                           l_freq=l_freq,
+                                           h_freq=h_freq,
+                                           ems_factor=ems_factor,
+                                           init_block_size=init_block_size,
+                                           trial_start_offset_seconds=trial_start_offset_seconds,
+                                           training_set_size=training_set_size)
 
     # Instantiating the Train, Validation and Test DataLoaders
     if use_full_data:

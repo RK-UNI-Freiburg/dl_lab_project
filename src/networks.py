@@ -21,12 +21,12 @@ class PositionalEncoding(nn.Module):
 class TransformerBlock(nn.Module):
     def __init__(self, input_embedding_size, num_heads, hidden_size, dropout):
         super(TransformerBlock, self).__init__()
-        self.self_attn = nn.MultiheadAttention(input_embedding_size, num_heads)
+        self.self_attn = nn.MultiheadAttention(embed_dim=input_embedding_size, num_heads=num_heads)
         self.norm1 = nn.LayerNorm(input_embedding_size)
-        self.linear1 = nn.Linear(input_embedding_size, hidden_size)
-        self.linear2 = nn.Linear(hidden_size, input_embedding_size)
+        self.linear1 = nn.Linear(in_features=input_embedding_size, out_features=hidden_size)
+        self.linear2 = nn.Linear(in_features=hidden_size, out_features=input_embedding_size)
         self.norm2 = nn.LayerNorm(input_embedding_size)
-        self.dropout = nn.Dropout(dropout)
+        self.dropout = nn.Dropout(p=dropout)
         self.silu = nn.SiLU()
 
     def forward(self, x):
@@ -53,9 +53,12 @@ class EEGTransformer(nn.Module):
                  num_classes):
         super(EEGTransformer, self).__init__()
         self.input_embedding = nn.Linear(in_features=window_size, out_features=input_embedding_size)
-        self.pos_encoding = PositionalEncoding(input_embedding_size, num_channels)
+        self.pos_encoding = PositionalEncoding(input_embedding_size=input_embedding_size, num_channels=num_channels)
         self.encoder = nn.ModuleList(
-            [TransformerBlock(input_embedding_size, num_heads, hidden_size, dropout) for _ in range(num_layers)])
+            [TransformerBlock(input_embedding_size=input_embedding_size,
+                              num_heads=num_heads,
+                              hidden_size=hidden_size,
+                              dropout=dropout) for _ in range(num_layers)])
         self.fc1 = nn.Linear(in_features=num_channels * input_embedding_size, out_features=2048)
         self.silu1 = nn.SiLU()
         self.fc2 = nn.Linear(in_features=2048, out_features=1024)

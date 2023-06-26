@@ -207,8 +207,14 @@ def split_dataset(data: WindowsDataset, training_set_size: float = 0.8) -> Tuple
     return full_train_set, train_set, valid_set, eval_set
 
 
-def get_data_and_preprocess(dataset_dir: str, dataset_name: str, subject_ids: str, l_freq: float, h_freq: float,
-                            ems_factor: float, init_block_size: int, trial_start_offset_seconds: float,
+def get_data_and_preprocess(dataset_dir: str,
+                            dataset_name: str,
+                            subject_ids: str,
+                            l_freq: float,
+                            h_freq: float,
+                            ems_factor: float,
+                            init_block_size: int,
+                            trial_start_offset_seconds: float,
                             training_set_size: float) -> Tuple[Any, Any, Any, Any]:
     """
     This method fetches the dataset from MOABBDataset and preprocesses it.
@@ -224,9 +230,8 @@ def get_data_and_preprocess(dataset_dir: str, dataset_name: str, subject_ids: st
     :param training_set_size: Indicates the training set size in percentage, like 0.7 or 0.8.
     :return: The full training data (train + validation), training data, validation data and the evaluation data.
     """
-
-    create_directory(dataset_dir)
     # Below, we fetch the dataset from MOABBDataset or load it if it already exists
+    create_directory(dataset_dir)
     if not any(os.scandir('./' + dataset_dir)):
         dataset = fetch_and_store(dataset_name=dataset_name,
                                   subject_ids=subject_ids,
