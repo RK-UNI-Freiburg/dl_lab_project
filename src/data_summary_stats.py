@@ -10,7 +10,7 @@ import seaborn as sns
 from typing import Dict
 from sklearn.cluster import KMeans
 
-from src.utils import *
+from utils import *
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -139,7 +139,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=log_lvl)
 
     # If the data does not exist, the fetch and store the data, else load the existing data
-    create_directory(args.data_folder_name)
+    '''create_directory(args.data_folder_name)
     if not any(os.scandir('./' + args.data_folder_name)):
         dataset = fetch_and_store(dataset_name=args.dataset_name,
                                   subject_ids=args.subject_ids,
@@ -153,11 +153,18 @@ if __name__ == '__main__':
                                               h_freq=args.h_freq,
                                               ems_factor=args.ems_factor,
                                               init_block_size=args.init_block_size,
-                                              trial_start_offset_seconds=args.trial_start_offset_seconds)
+                                              trial_start_offset_seconds=args.trial_start_offset_seconds)'''
 
-    # Below, we get the split datasets required for training purposes
-    full_train_set, train_set, valid_set, eval_set = split_dataset(preprocessed_dataset,
-                                                                   training_set_size=args.training_set_size)
+    # Below, we get the split datasets required for training purposes after fetching and preprocessing it
+    full_train_set, train_set, valid_set, eval_set = get_data_and_preprocess(dataset_dir=args.data_folder_name,
+                                                                             dataset_name=args.dataset_name,
+                                                                             subject_ids=args.subject_ids,
+                                                                             l_freq=args.l_freq,
+                                                                             h_freq=args.h_freq,
+                                                                             ems_factor=args.ems_factor,
+                                                                             init_block_size=args.init_block_size,
+                                                                             trial_start_offset_seconds=args.trial_start_offset_seconds,
+                                                                             training_set_size=args.training_set_size)
 
     # Now we generate the summary statistics for the split datasets
     datasets = {

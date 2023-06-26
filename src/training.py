@@ -12,8 +12,8 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchsummary import summary
 
-from src.networks import *
-from src.utils import *
+from networks import *
+from utils import *
 
 
 def str_to_bool(value: str) -> bool:
@@ -89,26 +89,16 @@ def main(exp_name: str,
     # Device configuration
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    # Load the dataset
-    create_directory(dataset_dir)
-    if not any(os.scandir('./' + dataset_dir)):
-        dataset = fetch_and_store(dataset_name=dataset_name,
-                                  subject_ids=subject_ids,
-                                  data_folder_name=dataset_dir)
-    else:
-        dataset = load_dataset(folder_name=dataset_dir)
-
-    # Below, we preprocess the dataset we want to use for training purposes
-    preprocessed_dataset = preprocess_dataset(data=dataset,
-                                              l_freq=l_freq,
-                                              h_freq=h_freq,
-                                              ems_factor=ems_factor,
-                                              init_block_size=init_block_size,
-                                              trial_start_offset_seconds=trial_start_offset_seconds)
-
-    # Below, we get the split datasets required for training purposes
-    full_train_set, train_set, valid_set, eval_set = split_dataset(preprocessed_dataset,
-                                                                   training_set_size=training_set_size)
+    # Load the dataset and preprocess it and get the train, validation and test sets
+    full_train_set, train_set, valid_set, eval_set = get_data_and_preprocess(dataset_dir=dataset_dir,
+                                                                             dataset_name=dataset_name,
+                                                                             subject_ids=subject_ids,
+                                                                             l_freq=l_freq,
+                                                                             h_freq=h_freq,
+                                                                             ems_factor=ems_factor,
+                                                                             init_block_size=init_block_size,
+                                                                             trial_start_offset_seconds=trial_start_offset_seconds,
+                                                                             training_set_size=training_set_size)
 
     # Instantiating the Train, Validation and Test DataLoaders
     if use_full_data:
@@ -420,7 +410,7 @@ if __name__ == '__main__':
     cmdline_parser.add_argument('-dr', '--dropout',
                                 default=0.5,
                                 help='Dropout',
-                                type=int)
+                                type=float)
     cmdline_parser.add_argument('-dn', '--dataset_name',
                                 default='BNCI2014001',
                                 help='The name of the dataset to fetch',
