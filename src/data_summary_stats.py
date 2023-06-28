@@ -10,7 +10,7 @@ import seaborn as sns
 from typing import Dict
 from sklearn.cluster import KMeans
 
-from utils import *
+from src.utils import *
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -81,6 +81,18 @@ def get_summary_stats(data_sets: Dict,
         plt.title(f"Channel Wise Cluster Relation for {name}", fontdict={'fontsize': 30})
         plt.savefig(f"./{summary_stats_plots_path}/{name}_cluster_analysis.png")
         plt.show()
+
+        actions = np.unique(classes)
+        for action in actions:
+            data = np.array([instance[0] for instance in data_set if instance[1] == action])
+            concatenated_data = np.concatenate(data, axis=1)
+            correlation_matrix = np.corrcoef(concatenated_data)
+            plt.figure(figsize=(20, 15))
+            sns.heatmap(correlation_matrix)
+            plt.title(f"Channel Wise Correlation Map for {name} and Action = {action}", fontdict={'fontsize': 30})
+            plt.savefig(f"./{summary_stats_plots_path}/{name}_action_{action}_heatmap.png")
+            plt.show()
+
 
 
 if __name__ == '__main__':

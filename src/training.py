@@ -12,8 +12,8 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchsummary import summary
 
-from networks import *
-from utils import *
+from src.networks import *
+from src.utils import *
 
 
 def str_to_bool(value: str) -> bool:
@@ -170,7 +170,7 @@ def main(exp_name: str,
         elif scheduler == optim.lr_scheduler.CosineAnnealingLR:
             scheduler = scheduler(optimizer)
         elif scheduler == optim.lr_scheduler.CosineAnnealingWarmRestarts:
-            scheduler = scheduler(optimizer, 3)
+            scheduler = scheduler(optimizer, 10)
         elif scheduler == optim.lr_scheduler.StepLR:
             scheduler = scheduler(optimizer)
         else:

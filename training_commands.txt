@@ -1,0 +1,50 @@
+1. Initial Command
+python -m src.training -n "EEGTransformer" -m "EEGTransformer" -dd "data" -ufd False -e 30 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 4 -nh 1 -ies 2048 -hs 512 -dr 0 -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
+
+2. Effect of increasing the number of epochs
+python -m src.training -n "EEGTransformer" -m "EEGTransformer" -dd "data" -ufd False -e 50 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 4 -nh 1 -ies 2048 -hs 512 -dr 0 -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
+
+3. Effect of decreasing the batch size
+python -m src.training -n "EEGTransformer" -m "EEGTransformer" -dd "data" -ufd False -e 30 -bs 32 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 4 -nh 1 -ies 2048 -hs 512 -dr 0 -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
+
+4. Effect of increasing the batch size
+python -m src.training -n "EEGTransformer" -m "EEGTransformer" -dd "data" -ufd False -e 30 -bs 128 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 4 -nh 1 -ies 2048 -hs 512 -dr 0 -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
+
+5. Effect of decreasing the learning rate
+python -m src.training -n "EEGTransformer" -m "EEGTransformer" -dd "data" -ufd False -e 30 -bs 64 -lr 0.00001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 4 -nh 1 -ies 2048 -hs 512 -dr 0 -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
+
+6. Effect of increasing the learning rate
+python -m src.training -n "EEGTransformer" -m "EEGTransformer" -dd "data" -ufd False -e 30 -bs 64 -lr 0.001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 4 -nh 1 -ies 2048 -hs 512 -dr 0 -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
+
+7. Effect of warm restarts with adam
+python -m src.training -n "EEGTransformer" -m "EEGTransformer" -dd "data" -ufd False -e 30 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "warm" -nl 4 -nh 1 -ies 2048 -hs 512 -dr 0 -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
+
+8. Effect of decreasing the number of transformer layers
+python -m src.training -n "EEGTransformer" -m "EEGTransformer" -dd "data" -ufd False -e 30 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 2 -nh 1 -ies 2048 -hs 512 -dr 0 -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
+
+9. Effect of increasing the number of transformer layers
+python -m src.training -n "EEGTransformer" -m "EEGTransformer" -dd "data" -ufd False -e 30 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 8 -nh 1 -ies 2048 -hs 512 -dr 0 -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
+
+10. Effect of increasing the number of attention heads
+python -m src.training -n "EEGTransformer" -m "EEGTransformer" -dd "data" -ufd False -e 30 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 4 -nh 4 -ies 2048 -hs 512 -dr 0 -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
+
+11. Effect of decreasing the input embedding size
+python -m src.training -n "EEGTransformer" -m "EEGTransformer" -dd "data" -ufd False -e 30 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 4 -nh 1 -ies 256 -hs 512 -dr 0 -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
+
+12. Effect of increasing the input embedding size
+python -m src.training -n "EEGTransformer" -m "EEGTransformer" -dd "data" -ufd False -e 30 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 4 -nh 1 -ies 2560 -hs 512 -dr 0 -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
+
+13. Effect of increasing the hidden size
+python -m src.training -n "EEGTransformer" -m "EEGTransformer" -dd "data" -ufd False -e 30 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 4 -nh 1 -ies 2048 -hs 1024 -dr 0 -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
+
+14. Effect of increasing the input embedding size
+python -m src.training -n "EEGTransformer" -m "EEGTransformer" -dd "data" -ufd False -e 30 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 4 -nh 1 -ies 2048 -hs 256 -dr 0 -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
+
+15. Inverting the channels with the temporal dimension
+python -m src.training -n "EEGTransformerInverse" -m "EEGTransformerInverse" -dd "data" -ufd False -e 1000 -bs 96 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "warm" -nl 2 -nh 1 -ies 32 -hs 16 -dr 0 -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
+
+16. Inverting the channels with the temporal dimension with 1 encoder block, 128 batch size and 0.25 dropout
+python -m src.training -n "EEGTransformerInverse" -m "EEGTransformerInverse" -dd "data" -ufd False -e 1000 -bs 128 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "warm" -nl 1 -nh 1 -ies 32 -hs 16 -dr 0.25 -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
+
+17. Inverting the channels with the temporal dimension with 1 encoder block and 128 batch size and 0.5 dropout
+python -m src.training -n "EEGTransformerInverse" -m "EEGTransformerInverse" -dd "data" -ufd False -e 1000 -bs 128 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "warm" -nl 1 -nh 1 -ies 32 -hs 16 -dr 0.5 -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
