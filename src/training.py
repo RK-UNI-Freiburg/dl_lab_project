@@ -43,6 +43,8 @@ def main(exp_name: str,
          input_embedding_size: int = 1024,
          hidden_size: int = 512,
          dropout: int = 0.5,
+         do_positional_encoding: bool = True,
+         learned_positional_encoding: bool = False,
          dataset_name: str = 'BNCI2014001',
          subject_ids: str = '1,2,3,4,5,6,7,8,9',
          l_freq: float = 4.0,
@@ -71,6 +73,9 @@ def main(exp_name: str,
     :param input_embedding_size: Contains the embedding size of the input.
     :param hidden_size: Contains the hidden size of the feed forward part of the transformer architecture.
     :param dropout: Contains the level of dropout to be implemented
+    :param do_positional_encoding: A boolean field that decides if positional encoding is required to be implemented.
+    :param learned_positional_encoding: A boolean field that decides if simple positional encoding is required or
+    learned positional encoding.
     :param dataset_name: The name of the dataset which is to be fetched from braindecode MOABBDataset.
     :param subject_ids: The subjects whose data is fetched.
     :param l_freq: The lower limit of the Bandpass Filter in data preprocessing.
@@ -132,6 +137,8 @@ def main(exp_name: str,
                         input_embedding_size=input_embedding_size,
                         hidden_size=hidden_size,
                         dropout=dropout,
+                        do_positional_encoding=do_positional_encoding,
+                        learned_positional_encoding=learned_positional_encoding,
                         num_classes=num_classes).to(device)
 
     # Instantiating training criterion
@@ -414,6 +421,14 @@ if __name__ == '__main__':
                                 default=0.5,
                                 help='Dropout',
                                 type=float)
+    cmdline_parser.add_argument('-dpe', '--do_positional_encoding',
+                                default=True,
+                                help='Do we need to do positional encoding?',
+                                type=str_to_bool)
+    cmdline_parser.add_argument('-lpe', '--learned_positional_encoding',
+                                default=False,
+                                help='Do we need to do simple positional encoding or learned positional encoding?',
+                                type=str_to_bool)
     cmdline_parser.add_argument('-dn', '--dataset_name',
                                 default='BNCI2014001',
                                 help='The name of the dataset to fetch',
@@ -487,6 +502,8 @@ if __name__ == '__main__':
          input_embedding_size=args.input_embedding_size,
          hidden_size=args.hidden_size,
          dropout=args.dropout,
+         do_positional_encoding=args.do_positional_encoding,
+         learned_positional_encoding=args.learned_positional_encoding,
          dataset_name=args.dataset_name,
          subject_ids=args.subject_ids,
          l_freq=args.l_freq,
