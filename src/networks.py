@@ -75,6 +75,30 @@ class ConvBlock(nn.Module):
         return self.conv_block(x)
 
 
+class ShallProjBlock(nn.Module):
+    def __init__(self, input_embedding_size, dropout):
+        super(ShallProjBlock, self).__init__()
+
+        self.shallow_net = nn.Sequential(
+            nn.Conv2d(in_channels=1, out_channels=40, kernel_size=(1, 10), stride=(1, 1)),
+            nn.Conv2d(in_channels=40, out_channels=40, kernel_size=(22, 1), stride=(1, 1)),
+            nn.BatchNorm2d(40),
+            nn.SiLU(),
+            nn.AvgPool2d(kernel_size=(1, 3), stride=(1, 15)),
+            nn.Dropout(dropout),
+        )
+
+        self.projection_net = nn.Sequential(
+            nn.Conv2d(in_channels=40, out_channels=input_embedding_size, kernel_size=(1, 1), stride=(1, 1)),
+            nn.Flatten(start_dim=2),
+        )
+
+    def forward(self, x):
+        x = self.shallow_net(x)
+        x = self.projection_net(x)
+        return x
+
+
 class EEGTransformerBasic(nn.Module):
     def __init__(self,
                  num_layers,
@@ -166,7 +190,7 @@ class EEGTransformerInverse(nn.Module):
             param.requires_grad = False
 
     def forward(self, x):
-        x = torch.transpose(x, 1, 2)
+        x = torch.transpose(input=x, dim0=1, dim1=2)
         x = self.input_embedding(x)
         if self.do_positional_encoding:
             if self.learned_positional_encoding:
@@ -244,6 +268,49 @@ class EEGTransformerConvFFT(nn.Module):
         x = x.unsqueeze(dim=1)
         x = self.conv_net(x)
         x = torch.transpose(input=x, dim0=1, dim1=2)
+        for layer in self.encoder:
+            x = layer(x)
+        x = torch.mean(input=x, dim=1)
+        x = self.fc(x)
+        return x
+
+
+class EEGTransformerMaster(nn.Module):
+    def __init__(self,
+                 num_layers,
+                 num_channels,
+                 num_heads,
+                 window_size,
+                 input_embedding_size,
+                 hidden_size,
+                 dropout,
+                 do_positional_encoding,
+                 learned_positional_encoding,
+                 num_classes):
+        super(EEGTransformerMaster, self).__init__()
+        self.shallow_projection_net = ShallProjBlock(input_embedding_size, dropout)
+        self.encoder = nn.ModuleList(
+            [TransformerBlock(input_embedding_size=1104,
+                              num_heads=num_heads,
+                              hidden_size=hidden_size,
+                              dropout=dropout) for _ in range(num_layers)])
+        self.fc = nn.Sequential(
+            nn.LayerNorm(normalized_shape=1104),
+            nn.Linear(in_features=1104, out_features=2440),
+            nn.Linear(in_features=2440, out_features=256),
+            nn.SiLU(),
+            nn.Dropout(dropout),
+            nn.Linear(in_features=256, out_features=32),
+            nn.SiLU(),
+            nn.Dropout(dropout),
+            nn.Linear(in_features=32, out_features=num_classes)
+        )
+
+    def forward(self, x):
+        x = (torch.fft.fft(x, dim=-1)).to(device=x.device, dtype=torch.float)
+        x = torch.transpose(input=x, dim0=1, dim1=2)
+        x = x.unsqueeze(dim=1)
+        x = self.shallow_projection_net(x)
         for layer in self.encoder:
             x = layer(x)
         x = torch.mean(input=x, dim=1)

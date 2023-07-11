@@ -53,6 +53,7 @@ python -m src.training -n "EEGTransformerBasic" -m "EEGTransformerBasic" -dd "da
 python -m src.training -n "EEGTransformerInverse" -m "EEGTransformerInverse" -dd "data" -ufd False -e 500 -bs 32 -lr 0.00005 -tl "cross_entropy" -o "adam" -lrs "none" -nl 2 -nh 1 -ies 48 -hs 32 -dr 0.5 -dpe True -lpe False -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
 
 19. Doing EEGTransformerConv
-python -m src.training -n "EEGTransformerConv" -m "EEGTransformerConv" -dd "data" -ufd False -e 100 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam_w" -lrs "none" -nl 2 -nh 4 -ies 64 -hs 2048 -dr 0.5 -dpe True -lpe False -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
+python -m src.training -n "EEGTransformerConv" -m "EEGTransformerConv" -dd "data" -ufd False -e 100 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam_w" -lrs "none" -nl 2 -nh 4 -ies 64 -hs 2048 -dr 0.5 -dpe False -lpe False -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
 
-20.
+20. Training EEG Transformer Master
+python -m src.training -n "EEGTransformerMaster" -m "EEGTransformerMaster" -dd "data" -ufd False -e 20 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam_w" -lrs "none" -nl 2 -nh 4 -ies 64 -hs 2048 -dr 0.5 -dpe False -lpe False -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
