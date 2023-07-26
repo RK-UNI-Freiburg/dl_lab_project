@@ -19,13 +19,13 @@ def get_pipeline_space():
         nl=neps.IntegerParameter(lower=2, upper=8),
         nh=neps.CategoricalParameter(choices=[1, 2, 5, 10]),
         ies=neps.CategoricalParameter(choices=[10, 20, 30, 40, 50, 60]),
-        hs=neps.IntegerParameter(lower=100, upper=200),
+        # hs=neps.IntegerParameter(lower=100, upper=200),
         dr=neps.FloatParameter(lower=0.3, upper=0.5),
     )
     return pipeline_space
 
 
-def run_pipeline(lr, o, bs, nl, nh, ies, hs, dr):
+def run_pipeline(lr, o, bs, nl, nh, ies, dr):
     if o == 'adagrad':
         optimizer = Adagrad
     elif o == 'rmsprop':
@@ -36,7 +36,7 @@ def run_pipeline(lr, o, bs, nl, nh, ies, hs, dr):
         optimizer = SGD
 
     results = train(
-        exp_name=f'Conformer_LR_{lr}_O_{o}_BS_{bs}_NL_{nl}_NH_{nh}_IES_{ies}_HS_{hs}_DR_{dr}',
+        exp_name=f'Conformer_LR_{lr}_O_{o}_BS_{bs}_NL_{nl}_NH_{nh}_IES_{ies}_DR_{dr}',
         torch_model=Conformer,
         num_epochs=200,
         batch_size=bs,
@@ -45,7 +45,6 @@ def run_pipeline(lr, o, bs, nl, nh, ies, hs, dr):
         num_layers=nl,
         num_heads=nh,
         input_embedding_size=ies,
-        hidden_size=hs,
         dropout=dr,
         return_results=True
     )
