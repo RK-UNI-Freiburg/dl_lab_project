@@ -14,6 +14,9 @@ import torch
 from torch.utils.data import Subset
 
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+
 def create_directory(folder_name: str) -> None:
     """
     This method creates a directory with desired name.
@@ -252,3 +255,33 @@ def get_data_and_preprocess(dataset_dir: str,
                                                                    training_set_size=training_set_size)
 
     return full_train_set, train_set, valid_set, eval_set
+
+
+def interaug(timg, label, batch_size):
+    aug_data = []
+    aug_label = []
+    for cls4aug in range(4):
+        cls_idx = np.where(label == cls4aug)
+        tmp_data = timg[cls_idx]
+        tmp_label = label[cls_idx]
+
+        tmp_aug_data = np.zeros((int(batch_size / 4), 1, 22, 1125))
+        for ri in range(int(batch_size / 4)):
+            for rj in range(8):
+                rand_idx = np.random.randint(0, tmp_data.shape[0], 8)
+                tmp_aug_data[ri, :, :, rj * 125:(rj + 1) * 125] = tmp_data[rand_idx[rj], :, :,
+                                                                  rj * 125:(rj + 1) * 125]
+
+        aug_data.append(tmp_aug_data)
+        aug_label.append(tmp_label)#[:int(batch_size / 4)])
+    aug_data = np.concatenate(aug_data)
+    aug_label = np.concatenate(aug_label)
+    aug_shuffle = np.random.permutation(len(aug_data))
+    aug_data = aug_data[aug_shuffle, :, :]
+    aug_label = aug_label[aug_shuffle]
+
+    aug_data = torch.from_numpy(aug_data)
+    aug_data = aug_data.float()
+    aug_label = torch.from_numpy(aug_label).to(device)
+    aug_label = aug_label.long()
+    return aug_data, aug_label

@@ -1,59 +1,14 @@
-1. Initial Transformer Command
-python -m src.training -n "EEGTransformerBasic" -m "EEGTransformerBasic" -dd "data" -ufd False -e 30 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 4 -nh 1 -ies 2048 -hs 512 -dr 0 -dpe True -lpe False -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
+1. Vanilla Transformer
+python -m src.training -n "Vanilla Transformer" -m "EEGTransformerBasic" -dd "data" -ufd False -e 200 -bs 64 -lr 0.003 -tl "cross_entropy" -o "adam" -lrs "none" -nl 2 -nh 2 -ies 1250 -hs 2048 -dr 0.3 -dpe True -lpe False -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
 
-2. Effect of doing learned positional encoding
-python -m src.training -n "EEGTransformerBasic" -m "EEGTransformerBasic" -dd "data" -ufd False -e 30 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 4 -nh 1 -ies 2048 -hs 512 -dr 0 -dpe True -lpe True -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
+2. Vanilla Transformer Subject ID 1
+python -m src.training -n "Vanilla Transformer Subject ID 1" -m "EEGTransformerBasic" -dd "data" -ufd False -e 200 -bs 64 -lr 0.003 -tl "cross_entropy" -o "adam" -lrs "cosine" -nl 2 -nh 2 -ies 1250 -hs 2048 -dr 0.3 -dpe True -lpe False -dn "BNCI2014001" -sid "1" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
 
-3. Effect of removing simple positional encoding
-python -m src.training -n "EEGTransformerBasic" -m "EEGTransformerBasic" -dd "data" -ufd False -e 30 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 4 -nh 1 -ies 2048 -hs 512 -dr 0 -dpe False -lpe False -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
+3. Vanilla Transformer Subject ID 2
+python -m src.training -n "Vanilla Transformer Subject ID 2" -m "EEGTransformerBasic" -dd "data" -ufd False -e 200 -bs 64 -lr 0.003 -tl "cross_entropy" -o "adam" -lrs "cosine" -nl 2 -nh 2 -ies 1250 -hs 2048 -dr 0.3 -dpe True -lpe False -dn "BNCI2014001" -sid "2" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
 
-4. Effect of increasing the number of epochs
-python -m src.training -n "EEGTransformerBasic" -m "EEGTransformerBasic" -dd "data" -ufd False -e 50 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 4 -nh 1 -ies 2048 -hs 512 -dr 0 -dpe True -lpe False -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
+4. Vanilla Transformer Subject ID 3
+python -m src.training -n "Vanilla Transformer Subject ID 3" -m "EEGTransformerBasic" -dd "data" -ufd False -e 200 -bs 64 -lr 0.003 -tl "cross_entropy" -o "adam" -lrs "cosine" -nl 2 -nh 2 -ies 1250 -hs 2048 -dr 0.3 -dpe True -lpe False -dn "BNCI2014001" -sid "3" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
 
-5. Effect of decreasing the batch size
-python -m src.training -n "EEGTransformerBasic" -m "EEGTransformerBasic" -dd "data" -ufd False -e 30 -bs 32 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 4 -nh 1 -ies 2048 -hs 512 -dr 0 -dpe True -lpe False -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
-
-6. Effect of increasing the batch size
-python -m src.training -n "EEGTransformerBasic" -m "EEGTransformerBasic" -dd "data" -ufd False -e 30 -bs 128 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 4 -nh 1 -ies 2048 -hs 512 -dr 0 -dpe True -lpe False -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
-
-7. Effect of decreasing the learning rate
-python -m src.training -n "EEGTransformerBasic" -m "EEGTransformerBasic" -dd "data" -ufd False -e 30 -bs 64 -lr 0.00001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 4 -nh 1 -ies 2048 -hs 512 -dr 0 -dpe True -lpe False -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
-
-8. Effect of increasing the learning rate
-python -m src.training -n "EEGTransformerBasic" -m "EEGTransformerBasic" -dd "data" -ufd False -e 30 -bs 64 -lr 0.001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 4 -nh 1 -ies 2048 -hs 512 -dr 0 -dpe True -lpe False -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
-
-9. Effect of warm restarts with adam
-python -m src.training -n "EEGTransformerBasic" -m "EEGTransformerBasic" -dd "data" -ufd False -e 30 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "warm" -nl 4 -nh 1 -ies 2048 -hs 512 -dr 0 -dpe True -lpe False -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
-
-10. Effect of decreasing the number of transformer layers
-python -m src.training -n "EEGTransformerBasic" -m "EEGTransformerBasic" -dd "data" -ufd False -e 30 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 2 -nh 1 -ies 2048 -hs 512 -dr 0 -dpe True -lpe False -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
-
-11. Effect of increasing the number of transformer layers
-python -m src.training -n "EEGTransformerBasic" -m "EEGTransformerBasic" -dd "data" -ufd False -e 30 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 8 -nh 1 -ies 2048 -hs 512 -dr 0 -dpe True -lpe False -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
-
-12. Effect of increasing the number of attention heads
-python -m src.training -n "EEGTransformerBasic" -m "EEGTransformerBasic" -dd "data" -ufd False -e 30 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 4 -nh 4 -ies 2048 -hs 512 -dr 0 -dpe True -lpe False -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
-
-13. Effect of decreasing the input embedding size
-python -m src.training -n "EEGTransformerBasic" -m "EEGTransformerBasic" -dd "data" -ufd False -e 30 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 4 -nh 1 -ies 256 -hs 512 -dr 0 -dpe True -lpe False -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
-
-14. Effect of increasing the input embedding size
-python -m src.training -n "EEGTransformerBasic" -m "EEGTransformerBasic" -dd "data" -ufd False -e 30 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 4 -nh 1 -ies 2560 -hs 512 -dr 0 -dpe True -lpe False -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
-
-15. Effect of increasing the hidden size
-python -m src.training -n "EEGTransformerBasic" -m "EEGTransformerBasic" -dd "data" -ufd False -e 30 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 4 -nh 1 -ies 2048 -hs 1024 -dr 0 -dpe True -lpe False -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
-
-16. Effect of decreasing the hidden size
-python -m src.training -n "EEGTransformerBasic" -m "EEGTransformerBasic" -dd "data" -ufd False -e 30 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 4 -nh 1 -ies 2048 -hs 256 -dr 0 -dpe True -lpe False -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
-
-17. Effect of adding dropout
-python -m src.training -n "EEGTransformerBasic" -m "EEGTransformerBasic" -dd "data" -ufd False -e 30 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam" -lrs "none" -nl 4 -nh 1 -ies 2048 -hs 512 -dr 0.5 -dpe True -lpe False -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
-
-18. Inverting the channels with the temporal dimension
-python -m src.training -n "EEGTransformerInverse" -m "EEGTransformerInverse" -dd "data" -ufd False -e 500 -bs 32 -lr 0.00005 -tl "cross_entropy" -o "adam" -lrs "none" -nl 2 -nh 1 -ies 48 -hs 32 -dr 0.5 -dpe True -lpe False -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
-
-19. Doing EEGTransformerConv
-python -m src.training -n "EEGTransformerConv" -m "EEGTransformerConv" -dd "data" -ufd False -e 100 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam_w" -lrs "none" -nl 2 -nh 4 -ies 64 -hs 2048 -dr 0.5 -dpe False -lpe False -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
-
-20. Training EEG Transformer Master
-python -m src.training -n "EEGTransformerMaster" -m "EEGTransformerMaster" -dd "data" -ufd False -e 20 -bs 64 -lr 0.0001 -tl "cross_entropy" -o "adam_w" -lrs "none" -nl 2 -nh 4 -ies 64 -hs 2048 -dr 0.5 -dpe False -lpe False -dn "BNCI2014001" -sid "1,2,3,4,5,6,7,8,9" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"
+5. Vanilla Transformer Subject ID 4
+python -m src.training -n "Vanilla Transformer Subject ID 4" -m "EEGTransformerBasic" -dd "data" -ufd False -e 200 -bs 64 -lr 0.003 -tl "cross_entropy" -o "adam" -lrs "cosine" -nl 2 -nh 2 -ies 1250 -hs 2048 -dr 0.3 -dpe True -lpe False -dn "BNCI2014001" -sid "4" -lf 4.0 -hf 38.0 -emsf 1e-3 -ibs 1000 -tsos -0.5 -tss 0.8 -mp "models" -pp "plots/training_results" -tpp "preds"

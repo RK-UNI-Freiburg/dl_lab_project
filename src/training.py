@@ -4,7 +4,7 @@ import logging
 import time
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import List, Tuple, Any
+from typing import List, Tuple, Any, Dict
 
 import torch
 import torch.nn as nn
@@ -28,34 +28,35 @@ def str_to_bool(value: str) -> bool:
         return False
 
 
-def main(exp_name: str,
-         torch_model: Any,
-         dataset_dir: str = './data',
-         use_full_data: bool = False,
-         num_epochs: int = 10,
-         batch_size: int = 32,
-         learning_rate: int = 0.0001,
-         train_criterion: nn = nn.CrossEntropyLoss,
-         model_optimizer: optim = optim.SGD,
-         scheduler: optim = None,
-         num_layers: int = 4,
-         num_heads: int = 4,
-         input_embedding_size: int = 1024,
-         hidden_size: int = 512,
-         dropout: int = 0.5,
-         do_positional_encoding: bool = True,
-         learned_positional_encoding: bool = False,
-         dataset_name: str = 'BNCI2014001',
-         subject_ids: str = '1,2,3,4,5,6,7,8,9',
-         l_freq: float = 4.0,
-         h_freq: float = 38.0,
-         ems_factor: float = 1e-3,
-         init_block_size: int = 1000,
-         trial_start_offset_seconds: float = -0.5,
-         training_set_size: float = 0.8,
-         model_path: str = 'models',
-         plots_path: str = 'plots/training_results',
-         test_preds_path: str = 'preds') -> None:
+def train(exp_name: str,
+          torch_model: Any,
+          dataset_dir: str = './data',
+          use_full_data: bool = False,
+          num_epochs: int = 10,
+          batch_size: int = 32,
+          learning_rate: int = 0.0001,
+          train_criterion: nn = nn.CrossEntropyLoss,
+          model_optimizer: optim = optim.SGD,
+          scheduler: optim = None,
+          num_layers: int = 4,
+          num_heads: int = 4,
+          input_embedding_size: int = 1024,
+          hidden_size: int = 512,
+          dropout: int = 0.5,
+          do_positional_encoding: bool = True,
+          learned_positional_encoding: bool = False,
+          dataset_name: str = 'BNCI2014001',
+          subject_ids: str = '1,2,3,4,5,6,7,8,9',
+          l_freq: float = 4.0,
+          h_freq: float = 38.0,
+          ems_factor: float = 1e-3,
+          init_block_size: int = 1000,
+          trial_start_offset_seconds: float = -0.5,
+          training_set_size: float = 0.8,
+          return_results: bool = False,
+          model_path: str = 'models',
+          plots_path: str = 'plots/training_results',
+          test_preds_path: str = 'preds') -> float:
     """
     This method is a dynamic method which is used to train any architecture.
     :param exp_name: The name of the experiment being run.
@@ -85,6 +86,7 @@ def main(exp_name: str,
     the exponential moving standardization.
     :param trial_start_offset_seconds: This represents the duration (in seconds) before the event of interest starts.
     :param training_set_size: Indicates the training set size in percentage, like 0.7 or 0.8.
+    :param return_results: Returns the loss and accuracies if needed.
     :param model_path: The path where the pickle file of the model is stored.
     :param plots_path: The path where the training loss and accuracy plots are stored.
     :param test_preds_path: The path where the evaluation predictions are stored.
@@ -95,9 +97,9 @@ def main(exp_name: str,
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # Load the dataset and preprocess it and get the train, validation and test sets
-    full_train_set,\
-        train_set,\
-        valid_set,\
+    full_train_set, \
+        train_set, \
+        valid_set, \
         eval_set = get_data_and_preprocess(dataset_dir=dataset_dir,
                                            dataset_name=dataset_name,
                                            subject_ids=subject_ids,
@@ -130,16 +132,26 @@ def main(exp_name: str,
     input_shape = (num_channels, window_size)
 
     # Instantiate the model
-    model = torch_model(num_layers=num_layers,
-                        num_channels=num_channels,
-                        num_heads=num_heads,
-                        window_size=window_size,
-                        input_embedding_size=input_embedding_size,
-                        hidden_size=hidden_size,
-                        dropout=dropout,
-                        do_positional_encoding=do_positional_encoding,
-                        learned_positional_encoding=learned_positional_encoding,
-                        num_classes=num_classes).to(device)
+    if torch_model == Conformer:
+        model = torch_model(
+            emb_size=input_embedding_size,
+            depth=num_layers,
+            n_heads=num_heads,
+            dropout=dropout
+        ).to(device)
+    else:
+        model = torch_model(
+            num_layers=num_layers,
+            num_channels=num_channels,
+            num_heads=num_heads,
+            window_size=window_size,
+            input_embedding_size=input_embedding_size,
+            hidden_size=hidden_size,
+            dropout=dropout,
+            do_positional_encoding=do_positional_encoding,
+            learned_positional_encoding=learned_positional_encoding,
+            num_classes=num_classes
+        ).to(device)
 
     # Instantiating training criterion
     criterion = train_criterion().to(device)
@@ -158,7 +170,7 @@ def main(exp_name: str,
     elif model_optimizer == optim.Adam:
         optimizer = model_optimizer(model.parameters(), lr=learning_rate)
     elif model_optimizer == optim.AdamW:
-        optimizer = model_optimizer(model.parameters(), lr=learning_rate)
+        optimizer = model_optimizer(model.parameters(), lr=learning_rate, betas=(0.5, 0.999))
     elif model_optimizer == optim.Adamax:
         optimizer = model_optimizer(model.parameters(), lr=learning_rate)
     elif model_optimizer == optim.Adadelta:
@@ -175,7 +187,7 @@ def main(exp_name: str,
         elif scheduler == optim.lr_scheduler.ExponentialLR:
             scheduler = scheduler(optimizer)
         elif scheduler == optim.lr_scheduler.CosineAnnealingLR:
-            scheduler = scheduler(optimizer)
+            scheduler = scheduler(optimizer, T_max=200, eta_min=0)
         elif scheduler == optim.lr_scheduler.CosineAnnealingWarmRestarts:
             scheduler = scheduler(optimizer, 10)
         elif scheduler == optim.lr_scheduler.StepLR:
@@ -185,8 +197,8 @@ def main(exp_name: str,
 
     # Information on the model being trained
     # This provides the number of learnable parameters to be trained in the model
-    logging.info('Model to be trained - ')
-    summary(model, input_shape, device='cuda' if torch.cuda.is_available() else 'cpu')
+    # print('Model to be trained - ')
+    # summary(model, input_shape, device='cuda' if torch.cuda.is_available() else 'cpu')
 
     # Train the model
     # Loop through the epochs
@@ -194,8 +206,8 @@ def main(exp_name: str,
     time_begin_full = time.time()
 
     for epoch in range(num_epochs):
-        logging.info('#' * 70)
-        logging.info('Epoch [{}/{}]'.format(epoch + 1, num_epochs))
+        print('#' * 70)
+        print('Epoch [{}/{}]'.format(epoch + 1, num_epochs))
 
         time_begin = time.time()
         time_train = 0
@@ -216,6 +228,7 @@ def main(exp_name: str,
         for i, data in enumerate(train_loader):
             signals = data[0].to(device)
             labels = data[1].to(device)
+            signals = signals.unsqueeze(1)
             optimizer.zero_grad()
             logits = model(signals)
             loss = criterion(logits, labels)
@@ -235,13 +248,14 @@ def main(exp_name: str,
             train_cnt_acc += n
             train_avg_acc = train_sum_acc / train_cnt_acc
 
-        logging.info(f'Avg Train Loss: {train_avg_loss:.4f} | Avg Train Accuracy: {train_avg_acc * 100:.2f}%')
+        print(f'Avg Train Loss: {train_avg_loss:.4f} | Avg Train Accuracy: {train_avg_acc * 100:.2f}%')
         avg_train_loss.append(train_avg_loss)
         avg_train_acc.append(train_avg_acc)
 
         for i, data in enumerate(val_loader):
             signals = data[0].to(device)
             labels = data[1].to(device)
+            signals = signals.unsqueeze(1)
             logits = model(signals)
             loss = criterion(logits, labels)
             preds = torch.argmax(logits, dim=1)
@@ -256,15 +270,15 @@ def main(exp_name: str,
             val_cnt_acc += n
             val_avg_acc = val_sum_acc / val_cnt_acc
 
-        logging.info(f'Avg Valid Loss: {val_avg_loss:.4f} | Avg Valid Accuracy: {val_avg_acc * 100:.2f}%')
+        print(f'Avg Valid Loss: {val_avg_loss:.4f} | Avg Valid Accuracy: {val_avg_acc * 100:.2f}%')
         avg_val_loss.append(val_avg_loss)
         avg_val_acc.append(val_avg_acc)
         time_train += time.time() - time_begin
-        logging.info(f'Training Time: {time_train / 60:.2f} Minutes')
+        print(f'Training Time: {time_train / 60:.2f} Minutes')
 
     time_train_full = time.time() - time_begin_full
-    logging.info(f'Overall Training Time: {time_train_full / 60:.2f} Minutes')
-    logging.info(f'Average Training Time / Epoch: {time_train_full / (60 * num_epochs):.2f} Minutes')
+    print(f'Overall Training Time: {time_train_full / 60:.2f} Minutes')
+    print(f'Average Training Time / Epoch: {time_train_full / (60 * num_epochs):.2f} Minutes')
 
     # Generate predictions for test set
     predictions = np.array([])
@@ -277,6 +291,7 @@ def main(exp_name: str,
     for i, data in enumerate(test_loader):
         signals = data[0].to(device)
         labels = data[1].to(device)
+        signals = signals.unsqueeze(1)
         logits = model(signals)
         preds = torch.argmax(logits, dim=1)
         predictions = np.append(predictions, preds.cpu().detach().numpy())
@@ -293,10 +308,10 @@ def main(exp_name: str,
         eval_cnt_acc += n
         eval_avg_acc = eval_sum_acc / eval_cnt_acc
 
-    logging.info(f'Evaluation Loss: {eval_avg_loss:.4f} | Evaluation Accuracy: {eval_avg_acc * 100:.2f}%')
+    print(f'Evaluation Loss: {eval_avg_loss:.4f} | Evaluation Accuracy: {eval_avg_acc * 100:.2f}%')
     create_directory(test_preds_path)
     np.savetxt(os.path.join('./' + test_preds_path, exp_name + '_' + str(int(time.time()))) + '.csv', predictions)
-    logging.info(f'Saved evaluation predictions in ./{test_preds_path} folder')
+    print(f'Saved evaluation predictions in ./{test_preds_path} folder')
 
     # Plot the Losses and Accuracies for Training and Validation
     if plots_path:
@@ -321,14 +336,36 @@ def main(exp_name: str,
         ax2.legend(['Training Accuracy', 'Validation Accuracy'])
 
         fig.savefig(os.path.join('./' + plots_path, exp_name + '_' + str(int(time.time()))) + '.png')
-        logging.info(f'Saved plots in ./{plots_path} folder')
+        print(f'Saved plots in ./{plots_path} folder')
 
     if model_path:
         create_directory(model_path)
         torch.save(model.state_dict(), os.path.join('./' + model_path, exp_name + '_model_' + str(int(time.time()))))
-        logging.info(f'Saved model in ./{model_path} folder')
+        print(f'Saved model in ./{model_path} folder')
 
-    logging.info('Training and Evaluation Completed!')
+    print('Training and Evaluation Completed!')
+
+    if return_results:
+        results = {
+            "hyperparam_config": exp_name,
+            "loss": 1 - avg_val_acc[-1],
+            "info_dict": {
+                "train_loss": avg_train_loss[-1],
+                "train_accuracy": avg_train_acc[-1] * 100,
+                "validation_loss": avg_val_loss[-1],
+                "validation_accuracy": avg_val_acc[-1] * 100,
+                "eval_loss": eval_avg_loss,
+                "eval_accuracy": eval_avg_acc * 100,
+                "train_time": time_train_full / 60
+            },
+        }
+
+        create_directory('results')
+
+        with open('results/results.txt', 'a') as file:
+            file.write(str(results) + '\n\n')
+
+        return 1 - avg_val_acc[-1]
 
 
 if __name__ == '__main__':
@@ -487,31 +524,31 @@ if __name__ == '__main__':
         logging.warning(str(unknowns))
         logging.warning('These will be ignored')
 
-    main(exp_name=args.exp_name,
-         torch_model=eval(args.model),
-         dataset_dir=args.dataset_dir,
-         use_full_data=args.use_full_data,
-         num_epochs=args.epochs,
-         batch_size=args.batch_size,
-         learning_rate=args.learning_rate,
-         train_criterion=loss_dict[args.training_loss],
-         model_optimizer=opti_dict[args.optimizer],
-         scheduler=lr_scheduler[args.lr_scheduler],
-         num_layers=args.num_layers,
-         num_heads=args.num_heads,
-         input_embedding_size=args.input_embedding_size,
-         hidden_size=args.hidden_size,
-         dropout=args.dropout,
-         do_positional_encoding=args.do_positional_encoding,
-         learned_positional_encoding=args.learned_positional_encoding,
-         dataset_name=args.dataset_name,
-         subject_ids=args.subject_ids,
-         l_freq=args.l_freq,
-         h_freq=args.h_freq,
-         ems_factor=args.ems_factor,
-         init_block_size=args.init_block_size,
-         trial_start_offset_seconds=args.trial_start_offset_seconds,
-         training_set_size=args.training_set_size,
-         model_path=args.model_path,
-         plots_path=args.plots_path,
-         test_preds_path=args.test_preds_path)
+    train(exp_name=args.exp_name,
+          torch_model=eval(args.model),
+          dataset_dir=args.dataset_dir,
+          use_full_data=args.use_full_data,
+          num_epochs=args.epochs,
+          batch_size=args.batch_size,
+          learning_rate=args.learning_rate,
+          train_criterion=loss_dict[args.training_loss],
+          model_optimizer=opti_dict[args.optimizer],
+          scheduler=lr_scheduler[args.lr_scheduler],
+          num_layers=args.num_layers,
+          num_heads=args.num_heads,
+          input_embedding_size=args.input_embedding_size,
+          hidden_size=args.hidden_size,
+          dropout=args.dropout,
+          do_positional_encoding=args.do_positional_encoding,
+          learned_positional_encoding=args.learned_positional_encoding,
+          dataset_name=args.dataset_name,
+          subject_ids=args.subject_ids,
+          l_freq=args.l_freq,
+          h_freq=args.h_freq,
+          ems_factor=args.ems_factor,
+          init_block_size=args.init_block_size,
+          trial_start_offset_seconds=args.trial_start_offset_seconds,
+          training_set_size=args.training_set_size,
+          model_path=args.model_path,
+          plots_path=args.plots_path,
+          test_preds_path=args.test_preds_path)
