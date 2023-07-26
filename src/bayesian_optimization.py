@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.optim import SGD, Adagrad, RMSprop, AdamW
-from torch.optim.lr_scheduler import CosineAnnealingLR, LambdaLR, CosineAnnealingWarmRestarts
+from torch.optim.lr_scheduler import CosineAnnealingLR, CosineAnnealingWarmRestarts
 
 from src.networks import *
 from src.utils import *
@@ -17,7 +17,7 @@ def get_pipeline_space():
         lr=neps.FloatParameter(lower=0.0001, upper=0.001),
         bs=neps.IntegerParameter(lower=32, upper=80),
         o=neps.CategoricalParameter(choices=['sgd', 'adagrad', 'rmsprop', 'adamw']),
-        sc=neps.CategoricalParameter(choices=['warm', 'cosine', 'lambda']),
+        sc=neps.CategoricalParameter(choices=['warm', 'cosine']),
         nl=neps.IntegerParameter(lower=2, upper=8),
         nh=neps.CategoricalParameter(choices=[1, 2, 5, 10]),
         ies=neps.CategoricalParameter(choices=[10, 20, 30, 40, 50, 60]),
@@ -28,6 +28,7 @@ def get_pipeline_space():
 
 
 def run_pipeline(lr, o, sc, bs, nl, nh, ies, dr):
+
     if o == 'adagrad':
         optimizer = Adagrad
     elif o == 'rmsprop':
@@ -38,11 +39,9 @@ def run_pipeline(lr, o, sc, bs, nl, nh, ies, dr):
         optimizer = SGD
 
     if sc == 'warm':
-        scheduler = CosineAnnealingWarmRestarts
-    elif sc == 'cosine':
-        scheduler = CosineAnnealingLR
+        scheduler1 = CosineAnnealingWarmRestarts
     else:
-        scheduler = LambdaLR
+        scheduler1 = CosineAnnealingLR
 
     results = train(
         exp_name=f'Conformer_LR_{lr}_O_{o}_SC_{sc}_BS_{bs}_NL_{nl}_NH_{nh}_IES_{ies}r_DR_{dr}',
@@ -51,7 +50,7 @@ def run_pipeline(lr, o, sc, bs, nl, nh, ies, dr):
         batch_size=bs,
         learning_rate=lr,
         model_optimizer=optimizer,
-        scheduler=scheduler,
+        scheduler=scheduler1,
         num_layers=nl,
         num_heads=nh,
         input_embedding_size=ies,
